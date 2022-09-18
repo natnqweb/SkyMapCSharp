@@ -5,15 +5,15 @@
     /**
      * @brief Structure to represent a star
      */
-    public class Star : CelestialObject
+    public class Star : ICelestialObject
     {
-        public double right_ascension;
-        public double declination;
+        public double _right_ascension;
+        public double _declination;
 
         public Star(double RA, double Dec)
         {
-            right_ascension = (RA);
-            declination = (Dec);
+            _right_ascension = (RA);
+            _declination = (Dec);
         }
 
         public Star()
@@ -22,22 +22,22 @@
 
         public double GetRA()
         {
-            return right_ascension;
+            return _right_ascension;
         }
 
         public double GetDec()
         {
-            return declination;
+            return _declination;
         }
 
         public void SetRA(double RA)
         {
-            right_ascension = RA;
+            _right_ascension = RA;
         }
 
         public void SetDec(double Dec)
         {
-            declination = Dec;
+            _declination = Dec;
         }
 
     }

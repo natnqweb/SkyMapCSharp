@@ -1,25 +1,32 @@
 ﻿using SkyMapCSharp;
-ObserverPosition myPosition = new ObserverPosition(0, 0);
-Star sirius = new Star();
-SkyMap skymap = new SkyMap();
-DateTimeValues dt = new DateTimeValues();
 
-dt.year = 2021.00;
-dt.month = 9.00;
-dt.day = 4.00;
-dt.time = 20.2; // UTC
+var skymap = new SkyMap();
+var losAngeles = new ObserverPosition()
+{
+    lattitude = 34.05,
+    longitude = -118.24358
+};
 
+var sirius = new Star()
+{
+    _right_ascension = 101.52,
+    _declination = -16.7424
+};
 
-sirius.SetRA(101.52);
-sirius.SetDec(-16.7424);
+var dt = new DateTimeValues()
+{
+    year = 2021.00,
+    month = 9.00,
+    day = 4.00,
+    time = 20.2 // UTC
+};
 
-myPosition.lattitude = 34.05;
-myPosition.longitude = -118.24358;
-skymap.celestial_object_ra_dec(sirius);
-skymap.DateTime(dt.year, dt.month, dt.day, dt.time);
-skymap.my_location(myPosition.GetLattitude(), myPosition.GetLongitude());
-skymap.Calculate_all();
+skymap.SetCelestialObject(sirius);
+skymap.DateTime(dt);
+skymap.SetMyLocation(losAngeles);
 
-double az = skymap.get_star_Azimuth();
-double alt = skymap.get_star_Altitude();
+skymap.CalculateAll();
+
+double az = skymap.GetAzimuth();
+double alt = skymap.GetAltitude();
 System.Console.WriteLine("Azimuth = " + az + " Altitude = " + alt);

@@ -1,6 +1,6 @@
 ﻿namespace SkyMapCSharp
 {
-    public interface CelestialObject
+    public interface ICelestialObject
     {
 
         double GetRA();

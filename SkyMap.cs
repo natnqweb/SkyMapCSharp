@@ -25,7 +25,7 @@ namespace SkyMapCSharp
          * @param datetime        Date and time values
          * @param celestialobject Celestial object
          */
-        public SkyMap(ObserverPosition observer, CelestialObject celestialobject, DateTimeValues datetime)
+        public SkyMap(ObserverPosition observer, ICelestialObject celestialobject, DateTimeValues datetime)
         {
             _lattitude = observer.lattitude;
             _longitude = observer.longitude;
@@ -38,7 +38,7 @@ namespace SkyMapCSharp
 
             if (_lattitude != 0 && _longitude != 0)
             {
-                Calculate_all();
+                CalculateAll();
             }
         }
 
@@ -51,9 +51,9 @@ namespace SkyMapCSharp
          *                        coordinates
          * @param longitude       - default value:0, type: double, details: geographic
          *                        coordinates
-         * @param declination     - default value:0, type: double, details:
+         * @param _declination     - default value:0, type: double, details:
          *                        com.example.skymap.Star coordinates
-         * @param right_ascension - default value:0, type: double, details:
+         * @param _right_ascension - default value:0, type: double, details:
          *                        com.example.skymap.Star coordinates
          * @param year            - default value:0, type: double, details: datetime,
          *                        current year
@@ -78,11 +78,11 @@ namespace SkyMapCSharp
 
             if (_lattitude != 0 && _longitude != 0)
             {
-                Calculate_all();
+                CalculateAll();
             }
         }
         // leave empty if you want to use real_time calculations or provide all data to
-        // calculate once and then you can also use update to calculate things in
+        // calculate once and then you can also use Update to calculate things in
         // real_time
 
         /**
@@ -95,15 +95,20 @@ namespace SkyMapCSharp
          *        if your location is not constant you may want to provide it as an
          *        input for this function
          */
-        public ObserverPosition my_location(double lattitude, double longitude) // returns pointer to array where your
-                                                                                // location is stored or when provided data
-                                                                                // it can update your position
+        public void SetMyLocation(ObserverPosition pos)
+        {
+            _lattitude = pos.GetLattitude();
+            _longitude = pos.GetLongitude();
+            _observer_position = pos;
+        }
+        public ObserverPosition SetMyLocation(double lattitude, double longitude) // returns pointer to array where your
+                                                                                // location is stored or when provided data                                                                  // it can Update your position
         {
             _lattitude = lattitude;
             _longitude = longitude;
             _observer_position.lattitude = _lattitude;
             _observer_position.longitude = _longitude;
-            return new ObserverPosition(_lattitude, _longitude);
+            return _observer_position;
         }
 
         /**
@@ -114,23 +119,23 @@ namespace SkyMapCSharp
          *        if your location is not constant you may want to provide it as an
          *        input for this function
          */
-        public ObserverPosition my_location() // returns pointer to array where your location is stored or when provided
-                                              // data it can update your position
+        public ObserverPosition SetMyLocation() // returns pointer to array where your location is stored or when provided
+                                              // data it can Update your position
         {
             return new ObserverPosition(_lattitude, _longitude);
         }
 
         /**
-         * @param right_ascension - default value:0, type: double, details:
+         * @param _right_ascension - default value:0, type: double, details:
          *                        com.example.skymap.Star coordinates
-         * @param declination     - default value:0, type: double, details:
+         * @param _declination     - default value:0, type: double, details:
          *                        com.example.skymap.Star coordinates
          * @return returns com.example.skymap.Star coordinates
-         * @brief function:star_ra_dec
+         * @brief function:SetStarRaDec
          *        this is another way to feed data for calculations input star
          *        coordinates
          */
-        public Star star_ra_dec(double right_ascension, double declination)
+        public Star SetStarRaDec(double right_ascension, double declination)
         {
             _right_ascension = right_ascension;
             _declination = declination;
@@ -142,24 +147,24 @@ namespace SkyMapCSharp
 
         /**
          * @return returns com.example.skymap.Star coordinates
-         * @brief function:star_ra_dec
+         * @brief function:SetStarRaDec
          */
-        public Star star_ra_dec()
+        public Star SetStarRaDec()
         {
             return _star;
         }
 
         /**
          * @param celestial_object - default value:nullptr, type:
-         *                         com.example.skymap.CelestialObject(double,double),
+         *                         com.example.skymap.ICelestialObject(double,double),
          *                         details: com.example.skymap.Star coordinates
          * @return returns com.example.skymap.Star coordinates in form of
-         *         com.example.skymap.CelestialObject*
+         *         com.example.skymap.ICelestialObject*
          * @brief function:CelebralObject_ra_dec
          *        this is another way to feed data for calculations input star
          *        coordinates
          */
-        public CelestialObject celestial_object_ra_dec(CelestialObject celestial_object)
+        public ICelestialObject SetCelestialObject(ICelestialObject celestial_object)
         {
             _right_ascension = celestial_object.GetRA();
             _declination = celestial_object.GetDec();
@@ -170,10 +175,10 @@ namespace SkyMapCSharp
 
         /**
          * @return returns com.example.skymap.Star coordinates in form of
-         *         com.example.skymap.CelestialObject*
+         *         com.example.skymap.ICelestialObject*
          * @brief function:CelebralObject_ra_dec
          */
-        public CelestialObject celestial_object_ra_dec()
+        public ICelestialObject SetCelestialObject()
         {
             return _star;
         }
@@ -187,7 +192,7 @@ namespace SkyMapCSharp
          * @param your_timezone_offset type:double
          * @return double returns UTC type: double
          */
-        public double Hh_mm_ss2UTC(double hhh, double mmm, double sss, double your_timezone_offset)
+        public double ConvertToUTC(double hhh, double mmm, double sss, double your_timezone_offset)
         {
             double converted_to_utc = hhh + mmm / 60 + sss * 0.000277777778;
             converted_to_utc -= your_timezone_offset;
@@ -195,22 +200,22 @@ namespace SkyMapCSharp
             {
                 converted_to_utc -= 24;
 
-                newday = 1;
+                _newday = 1;
             }
             else if (converted_to_utc < 0)
             {
                 converted_to_utc += 24;
-                newday = -1;
+                _newday = -1;
             }
             else if (converted_to_utc == 24)
             {
 
                 converted_to_utc = 0;
-                newday = 1;
+                _newday = 1;
             }
             else
             {
-                newday = 0;
+                _newday = 0;
             }
 
             return converted_to_utc;
@@ -222,16 +227,24 @@ namespace SkyMapCSharp
          * @param day   - type: double, details: datetime, current day
          * @param UTC   - type: double, details: datetime, current time utc.
          * @return com.example.skymap.DateTimeValues
-         * @brief if you want to perform realtime calculations you update time and date
+         * @brief if you want to perform realtime calculations you Update time and date
          *        for calculations calling this function
          */
+        public void DateTime(DateTimeValues dt)
+        {
+            _year = dt.year;
+            _month = dt.month;
+            _day = dt.day;
+            _time = dt.time;
+            _day += _newday;
+        }
         public DateTimeValues DateTime(double year, double month, double day, double UTC)
         {
             _year = year;
             _month = month;
             _day = day;
             _time = UTC;
-            _day += newday;
+            _day += _newday;
 
             return new DateTimeValues(_year, _month, _day, _time);
         }
@@ -293,7 +306,7 @@ namespace SkyMapCSharp
          *        sidereal time is a "time scale that is based on Earth's rate of
          *        rotation measured relative to the fixed stars"
          */
-        public double Local_Sidereal_Time(double j2000, double time, double longitude)
+        public double LocalSiderealTime(double j2000, double time, double longitude)
         {
             double LST = 100.46 + 0.985647 * j2000 + longitude + 15 * time;
             if (LST < 0)
@@ -328,13 +341,13 @@ namespace SkyMapCSharp
 
         /**
          * @param LST             -local sidereal time
-         * @param right_ascension
+         * @param _right_ascension
          * @return double
          * @brief the hour angle is the angle between two planes: one containing Earth's
          *        axis and the zenith (the meridian plane), and the other containing
          *        Earth's axis and a given point of interest (the hour circle)
          */
-        public double Hour_Angle(double LST, double right_ascension) // calculates hour_angle and stores it
+        public double GetHourAngle(double LST, double right_ascension) // calculates hour_angle and stores it
         {
             double HA = LST - right_ascension;
             if (HA < 0)
@@ -354,7 +367,7 @@ namespace SkyMapCSharp
          *        axis and the zenith (the meridian plane), and the other containing
          *        Earth's axis and a given point of interest (the hour circle)
          */
-        public double Hour_Angle()
+        public double GetHourAngle()
         {
             _HA = _local_sidereal_time - _right_ascension;
             if (_HA < 0)
@@ -371,13 +384,13 @@ namespace SkyMapCSharp
 
         /**
          * @param hour_angle
-         * @param declination
+         * @param _declination
          * @param lattitude
          * @return com.example.skymap.SearchResult
          * @brief calculate az and alt , returns pointer to array where the az and alt
          *        is stored
          */
-        public SearchResult calculate_AZ_alt(double hour_angle, double declination, double lattitude)
+        public SearchResult CalculateAzAlt(double hour_angle, double declination, double lattitude)
         {
             /*
              * math behind calculations -- conversion from HA and DEC to ALT and AZ
@@ -390,19 +403,19 @@ namespace SkyMapCSharp
              * If Math.Sin(HA) is negative,then AZ = A, otherwise AZ = 360 - A
              */
 
-            double sinDEC = Math.Sin(deg2rad(declination));
-            double sinHA = Math.Sin(deg2rad(hour_angle));
-            double sinLAT = Math.Sin(deg2rad(lattitude));
-            double cosDEC = Math.Cos(deg2rad(declination));
-            double cosHA = Math.Cos(deg2rad(hour_angle));
-            double cosLAT = Math.Cos(deg2rad(lattitude));
+            double sinDEC = Math.Sin(Deg2Rad(declination));
+            double sinHA = Math.Sin(Deg2Rad(hour_angle));
+            double sinLAT = Math.Sin(Deg2Rad(lattitude));
+            double cosDEC = Math.Cos(Deg2Rad(declination));
+            double cosHA = Math.Cos(Deg2Rad(hour_angle));
+            double cosLAT = Math.Cos(Deg2Rad(lattitude));
             double sinALT = (sinDEC * sinLAT) + (cosDEC * cosLAT * cosHA);
             double ALT = Math.Asin(sinALT);
             double cosALT = Math.Cos((ALT));
             double cosA = (sinDEC - sinALT * sinLAT) / (cosALT * cosLAT);
             double A = Math.Acos(cosA);
-            A = rad2deg(A);
-            ALT = rad2deg(ALT);
+            A = Rad2Deg(A);
+            ALT = Rad2Deg(ALT);
 
             double AZ;
             if (sinHA > 0)
@@ -422,24 +435,24 @@ namespace SkyMapCSharp
         /**
          * @brief perform all necessary calculations and after this function is called
          *        you can use get_star_azimuth and get_star_altitude
-         *        it is called automatically when using update() or when all data is
+         *        it is called automatically when using Update() or when all data is
          *        provided in constuctor
          */
-        public void Calculate_all()
+        public void CalculateAll()
         {
             J2000();
             Local_Sidereal_Time();
-            Hour_Angle();
-            calculate_AZ_alt(_hourangle, _declination, _lattitude);
+            GetHourAngle();
+            CalculateAzAlt(_hourangle, _declination, _lattitude);
         }
 
         /**
          * @return * double
          * @brief Get the star azimuth object works only if you provide all data at
-         *        constructor or in update() function and if you previously used
-         *        calculate_AZ_alt()
+         *        constructor or in Update() function and if you previously used
+         *        CalculateAzAlt()
          */
-        public double get_star_Azimuth()
+        public double GetAzimuth()
         {
             return _search_result.GetAzimuth();
         }
@@ -447,10 +460,10 @@ namespace SkyMapCSharp
         /**
          * @return double
          * @brief Get the star Altitude object works only if you provide all data at
-         *        constructor or in update() function and if you previously used
-         *        calculate_AZ_alt()
+         *        constructor or in Update() function and if you previously used
+         *        CalculateAzAlt()
          */
-        public double get_star_Altitude()
+        public double GetAltitude()
         {
             return _search_result.GetAltitude();
         }
@@ -458,15 +471,15 @@ namespace SkyMapCSharp
         /**
          * @param lattitude
          * @param longitude
-         * @param declination
-         * @param right_ascension
+         * @param _declination
+         * @param _right_ascension
          * @param year
          * @param month
          * @param day
          * @param time
          * @brief this function let you
          */
-        public void update(double lattitude, double longitude, double declination, double right_ascension, double year,
+        public void Update(double lattitude, double longitude, double declination, double right_ascension, double year,
                 double month, double day, double time) // if you created empty constructor you can provide all data here
                                                        // then use get..() functions
         {
@@ -478,8 +491,8 @@ namespace SkyMapCSharp
             _year = year;
             _month = month;
             _day = day;
-            _day += newday;
-            Calculate_all();
+            _day += _newday;
+            CalculateAll();
         }
 
         /**
@@ -487,7 +500,7 @@ namespace SkyMapCSharp
          * @return double
          * @brief convert degrees to radians
          */
-        public double deg2rad(double Deg)
+        public double Deg2Rad(double Deg)
         {
             return Deg * 3.14159265358979 / 180.00;
         }
@@ -497,13 +510,13 @@ namespace SkyMapCSharp
          * @return double
          * @brief convert radians to degrees
          */
-        public double rad2deg(double Rad)
+        public double Rad2Deg(double Rad)
         {
             return Rad * 180.0 / 3.14159265358979;
         }
         // check for star visibility sometimes user wants to know only if it will be
         // visible or not , function returns true if is visible false if it is not
-        // returns value when previously provided data to update function on in
+        // returns value when previously provided data to Update function on in
         // constructor what star you want to look at
 
         /**
@@ -527,43 +540,43 @@ namespace SkyMapCSharp
          * @return com.example.skymap.SearchResult
          * @brief get star azimuth and altitude
          */
-        public SearchResult get_star_search_result()
+        public SearchResult GetStarSearchResult()
         {
             return _search_result;
         }
 
         /**
-         * @return com.example.skymap.CelestialObject*
+         * @return com.example.skymap.ICelestialObject*
          * @brief function returns pointer to the celestial object
          */
-        public CelestialObject get_celestial_object()
+        public ICelestialObject GetCelestialObject()
         {
             return _star;
         }
 
-        private bool isvisible = false;
+        private bool _isvisible = false;
         private ObserverPosition _observer_position = new ObserverPosition();
         private SearchResult _search_result = new SearchResult();
         private Star _star = new Star();
 
-        private double h2deg(double h)
+        private double H2Deg(double h)
         {
             return h * 15;
         }
 
-        private double deg2h(double Deg)
+        private double Deg2H(double Deg)
         {
             return Deg / 15;
         }
 
         private double asind(double rad)
         {
-            return Math.Asin(rad2deg(rad));
+            return Math.Asin(Rad2Deg(rad));
         }
 
         private double acosd(double rad)
         {
-            return Math.Acos(rad2deg(rad));
+            return Math.Acos(Rad2Deg(rad));
         }
 
         /*
@@ -578,7 +591,7 @@ namespace SkyMapCSharp
         /*
          * The angular separation of a star from the equa-
          * torial plane is not affected by the rotation of the
-         * Earth.This angle is called the declination
+         * Earth.This angle is called the _declination
          */
         private double _declination;
         private double _year;
@@ -607,7 +620,7 @@ namespace SkyMapCSharp
         private double _j2000;
         private double _HA;
         private double _JD;
-        private double newday = 0;
+        private double _newday = 0;
     };
 
 }
